@@ -1,17 +1,20 @@
 _default:
 	@just --list
 
+# Edit this justfile
+edit:
+	$EDITOR {{justfile()}}
+
+# Just DO IT! (checks a few things)
+doit: test lint fmt-check
+
 # Run 
 run:
 	cargo run
 
-# Check project
-check: test lint fmt-check
-
 # Run clippy
 lint:
 	cargo clippy --tests -- -D rust-2018-idioms -D warnings
-	cargo +nightly fmt --check
 
 # Run tests
 test:
