@@ -22,26 +22,16 @@ mod examples {
     use super::*;
 
     #[test]
-    fn day_01_part_1_example() {
+    fn day_01_example() {
         let input = read_input("examples/day_01.txt");
         assert_eq!(day_01::part_1(&input), 24000);
-    }
-
-    #[test]
-    fn day_01_part_2_example() {
-        let input = read_input("examples/day_01.txt");
         assert_eq!(day_01::part_2(&input), 45000);
     }
 
     #[test]
-    fn day_02_part_1_example() {
+    fn day_02_example() {
         let input = read_input("examples/day_02.txt");
         assert_eq!(day_02::part_1(&input), 15);
-    }
-
-    #[test]
-    fn day_02_part_2_example() {
-        let input = read_input("examples/day_02.txt");
         assert_eq!(day_02::part_2(&input), 12);
     }
 }
