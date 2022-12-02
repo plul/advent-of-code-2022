@@ -1,7 +1,7 @@
 _default:
 	cargo check
 	cargo test
-	cargo clippy --tests -- -D rust-2018-idioms -D warnings
+	cargo clippy --tests -- -D rust-2018-idioms
 	cargo +nightly fmt --check
 	cargo run
 
