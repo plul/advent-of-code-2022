@@ -6,54 +6,24 @@ use std::collections::BTreeSet;
 
 /// Part 1
 pub fn part_1(input: &str) -> usize {
-    let rucksacks = parser::parse(input);
+    let groups: Vec<Group> = parser::parse(input);
 
-    rucksacks
-        .into_iter()
-        .flat_map(|group| group.rucksacks.into_iter())
-        .map(|r| {
-            let compartment_1_set = r.compartment_1.into_iter().collect::<BTreeSet<char>>();
-            let compartment_2_set = r.compartment_2.into_iter().collect::<BTreeSet<char>>();
-
-            let mut intersection = compartment_1_set.intersection(&compartment_2_set);
-            let item = intersection.next().unwrap();
-            assert!(intersection.next().is_none());
-
-            priority(*item)
-        })
+    groups
+        .iter()
+        .flat_map(|group| group.rucksacks.iter())
+        .map(Rucksack::common_item_between_compartments)
+        .map(priority)
         .sum()
 }
 
 /// Part 2
 pub fn part_2(input: &str) -> usize {
-    let groups = parser::parse(input);
+    let groups: Vec<Group> = parser::parse(input);
 
     groups
-        .into_iter()
-        .map(|group| {
-            let mut intersection = group
-                .rucksacks
-                .into_iter()
-                .map(|r| {
-                    let mut set = BTreeSet::new();
-                    set.extend(r.compartment_1);
-                    set.extend(r.compartment_2);
-                    set
-                })
-                .fold::<Option<BTreeSet<char>>, _>(None, |intersection, set| {
-                    if let Some(intersection) = intersection {
-                        Some(intersection.intersection(&set).cloned().collect())
-                    } else {
-                        Some(set)
-                    }
-                })
-                .unwrap();
-
-            assert_eq!(intersection.len(), 1);
-            let badge: char = intersection.pop_first().unwrap();
-
-            priority(badge)
-        })
+        .iter()
+        .map(Group::common_item_between_rucksacks)
+        .map(priority)
         .sum()
 }
 
@@ -74,9 +44,51 @@ struct Rucksack {
     compartment_1: Vec<char>,
     compartment_2: Vec<char>,
 }
+impl Rucksack {
+    fn common_item_between_compartments(&self) -> char {
+        let compartment_1_set = self.compartment_1.iter().copied().collect::<BTreeSet<char>>();
+
+        let mut intersection = self
+            .compartment_2
+            .iter()
+            .copied()
+            .filter(|item| compartment_1_set.contains(item))
+            .collect::<BTreeSet<char>>()
+            .into_iter();
+
+        let common_item = intersection.next().unwrap();
+        assert!(intersection.next().is_none());
+
+        common_item
+    }
+}
 
 struct Group {
     rucksacks: [Rucksack; 3],
+}
+impl Group {
+    fn common_item_between_rucksacks(&self) -> char {
+        let common_items = self
+            .rucksacks
+            .iter()
+            .map(|r| {
+                let mut set = BTreeSet::new();
+                set.extend(&r.compartment_1);
+                set.extend(&r.compartment_2);
+                set
+            })
+            .fold::<Option<BTreeSet<char>>, _>(None, |intersection, set| {
+                if let Some(intersection) = intersection {
+                    Some(intersection.intersection(&set).cloned().collect())
+                } else {
+                    Some(set)
+                }
+            })
+            .unwrap();
+
+        assert_eq!(common_items.len(), 1);
+        common_items.into_iter().next().unwrap()
+    }
 }
 
 mod parser {
