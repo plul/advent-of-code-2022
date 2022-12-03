@@ -4,12 +4,15 @@ use std::path::Path;
 
 mod day_01;
 mod day_02;
+mod day_03;
 
 fn main() {
     println!("Day 1 Part 1: {}", day_01::part_1(&read_input("day_01.txt")));
     println!("Day 1 Part 2: {}", day_01::part_2(&read_input("day_01.txt")));
     println!("Day 2 Part 1: {}", day_02::part_1(&read_input("day_02.txt")));
     println!("Day 2 Part 2: {}", day_02::part_2(&read_input("day_02.txt")));
+    println!("Day 3 Part 1: {}", day_03::part_1(&read_input("day_03.txt")));
+    println!("Day 3 Part 2: {}", day_03::part_2(&read_input("day_03.txt")));
 }
 
 fn read_input(path: impl AsRef<Path>) -> String {
@@ -33,6 +36,13 @@ mod examples {
         let input = read_input("examples/day_02.txt");
         assert_eq!(day_02::part_1(&input), 15);
         assert_eq!(day_02::part_2(&input), 12);
+    }
+
+    #[test]
+    fn day_03_example() {
+        let input = read_input("examples/day_03.txt");
+        assert_eq!(day_03::part_1(&input), 157);
+        assert_eq!(day_03::part_2(&input), 70);
     }
 }
 

@@ -1,4 +1,5 @@
-_default:
+# Check, test, lint, then run
+default:
 	cargo check
 	cargo test
 	cargo clippy --tests -- -D rust-2018-idioms
