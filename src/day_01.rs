@@ -4,7 +4,6 @@
 
 use std::collections::BinaryHeap;
 
-/// Part 1
 pub fn part_1(input: &str) -> usize {
     let elves: Vec<Elf> = parser::parse(input);
 
@@ -15,7 +14,6 @@ pub fn part_1(input: &str) -> usize {
     calorie_sums.max().unwrap()
 }
 
-/// Part 2
 pub fn part_2(input: &str) -> usize {
     let elves: Vec<Elf> = parser::parse(input);
 
@@ -26,7 +24,11 @@ pub fn part_2(input: &str) -> usize {
         .collect::<BinaryHeap<usize>>();
 
     // Take out the three max calorie totals and sum them
-    heap.into_iter_sorted().take(3).sum()
+    let solution = heap.into_iter_sorted().take(3).sum();
+
+    debug_assert!(solution <= 3 * part_1(input));
+
+    solution
 }
 
 struct Elf {
@@ -65,4 +67,32 @@ mod parser {
         let line_with_snack = terminated(map_res(digit1, str::parse), line_ending);
         map(many1(line_with_snack), |snacks| Elf { snacks })(s)
     }
+}
+
+#[cfg(test)]
+static EXAMPLE: &str = "\
+1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000
+";
+
+#[test]
+fn part_1_example() {
+    assert_eq!(part_1(EXAMPLE), 24000);
+}
+
+#[test]
+fn part_2_example() {
+    assert_eq!(part_2(EXAMPLE), 45000);
 }

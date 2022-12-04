@@ -4,7 +4,6 @@
 
 use std::collections::BTreeSet;
 
-/// Part 1
 pub fn part_1(input: &str) -> usize {
     let groups: Vec<Group> = parser::parse(input);
 
@@ -16,7 +15,6 @@ pub fn part_1(input: &str) -> usize {
         .sum()
 }
 
-/// Part 2
 pub fn part_2(input: &str) -> usize {
     let groups: Vec<Group> = parser::parse(input);
 
@@ -134,4 +132,24 @@ mod parser {
 
         Ok((s, rucksack))
     }
+}
+
+#[cfg(test)]
+static EXAMPLE: &str = "\
+vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw
+";
+
+#[test]
+fn part_1_example() {
+    assert_eq!(part_1(EXAMPLE), 157);
+}
+
+#[test]
+fn part_2_example() {
+    assert_eq!(part_2(EXAMPLE), 70);
 }

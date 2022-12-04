@@ -4,7 +4,6 @@
 
 use std::ops::RangeInclusive;
 
-/// Part 1
 pub fn part_1(input: &str) -> usize {
     parser::parse(input)
         .into_iter()
@@ -12,7 +11,6 @@ pub fn part_1(input: &str) -> usize {
         .count()
 }
 
-/// Part 2
 pub fn part_2(input: &str) -> usize {
     parser::parse(input)
         .into_iter()
@@ -61,4 +59,24 @@ mod parser {
         let (s, (from, to)) = separated_pair(u64, char('-'), u64)(s)?;
         Ok((s, from..=to))
     }
+}
+
+#[cfg(test)]
+static EXAMPLE: &str = "\
+2-4,6-8
+2-3,4-5
+5-7,7-9
+2-8,3-7
+6-6,4-6
+2-6,4-8
+";
+
+#[test]
+fn part_1_example() {
+    assert_eq!(part_1(EXAMPLE), 2);
+}
+
+#[test]
+fn part_2_example() {
+    assert_eq!(part_2(EXAMPLE), 4);
 }
