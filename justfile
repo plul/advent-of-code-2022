@@ -17,3 +17,7 @@ edit:
 # Format code
 fmt:
 	cargo +nightly fmt
+	
+# Open docs
+doc:
+	cargo doc --open
