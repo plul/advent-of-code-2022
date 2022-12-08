@@ -90,12 +90,8 @@ impl Group {
 }
 
 mod parser {
-    #[allow(unused_imports)]
     use super::*;
-    use nom::character::complete::*;
-    use nom::combinator::*;
-    use nom::multi::*;
-    use nom::IResult;
+    use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Group> {
         let main_parser = parse_groups;

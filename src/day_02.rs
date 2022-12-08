@@ -127,13 +127,8 @@ impl RoundOutcome {
 }
 
 mod parser {
-    #[allow(unused_imports)]
     use super::*;
-    use nom::character::complete::line_ending;
-    use nom::character::complete::one_of;
-    use nom::combinator::all_consuming;
-    use nom::multi::many0;
-    use nom::IResult;
+    use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> StrategyGuide {
         all_consuming(parse_strategy_guide)(s).unwrap().1

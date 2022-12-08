@@ -36,13 +36,7 @@ where
 }
 
 mod parser {
-    #[allow(unused_imports)]
-    use super::*;
-    use nom::character::complete::*;
-    use nom::combinator::*;
-    use nom::multi::*;
-    use nom::sequence::*;
-    use nom::IResult;
+    use crate::nom_complete::*;
     use std::ops::RangeInclusive;
 
     pub(super) fn parse(s: &str) -> Vec<[RangeInclusive<u64>; 2]> {

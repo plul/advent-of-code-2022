@@ -45,15 +45,7 @@ impl Elf {
 
 mod parser {
     use super::Elf;
-    use nom::character::complete::digit1;
-    use nom::character::complete::line_ending;
-    use nom::combinator::all_consuming;
-    use nom::combinator::map;
-    use nom::combinator::map_res;
-    use nom::multi::many1;
-    use nom::multi::separated_list0;
-    use nom::sequence::terminated;
-    use nom::IResult;
+    use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Elf> {
         all_consuming(parse_elves)(s).unwrap().1
