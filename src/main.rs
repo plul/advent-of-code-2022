@@ -9,6 +9,7 @@ mod day_04;
 mod day_05;
 mod day_06;
 mod day_07;
+mod day_08;
 
 fn main() {
     println!("Day 1 Part 1: {}", day_01::part_1(&read_input("day_01.txt")));
@@ -25,6 +26,8 @@ fn main() {
     println!("Day 6 Part 2: {}", day_06::part_2(&read_input("day_06.txt")));
     println!("Day 7 Part 1: {}", day_07::part_1(&read_input("day_07.txt")));
     println!("Day 7 Part 2: {}", day_07::part_2(&read_input("day_07.txt")));
+    println!("Day 8 Part 1: {}", day_08::part_1(&read_input("day_08.txt")));
+    println!("Day 8 Part 2: {}", day_08::part_2(&read_input("day_08.txt")));
 }
 
 fn read_input(path: impl AsRef<Path>) -> String {
