@@ -8,6 +8,7 @@ mod day_03;
 mod day_04;
 mod day_05;
 mod day_06;
+mod day_07;
 
 fn main() {
     println!("Day 1 Part 1: {}", day_01::part_1(&read_input("day_01.txt")));
@@ -22,6 +23,8 @@ fn main() {
     println!("Day 5 Part 2: {}", day_05::part_2(&read_input("day_05.txt")));
     println!("Day 6 Part 1: {}", day_06::part_1(&read_input("day_06.txt")));
     println!("Day 6 Part 2: {}", day_06::part_2(&read_input("day_06.txt")));
+    println!("Day 7 Part 1: {}", day_07::part_1(&read_input("day_07.txt")));
+    println!("Day 7 Part 2: {}", day_07::part_2(&read_input("day_07.txt")));
 }
 
 fn read_input(path: impl AsRef<Path>) -> String {
@@ -32,9 +35,14 @@ mod nom_complete {
     pub use nom::branch::*;
     pub use nom::bytes::complete::*;
     pub use nom::character::complete::*;
+    pub use nom::character::*;
     pub use nom::combinator::*;
     pub use nom::multi::*;
     pub use nom::sequence::*;
     pub use nom::Finish;
     pub use nom::IResult;
+
+    pub fn take_till_whitespace1(s: &str) -> IResult<&str, &str> {
+        take_till1(char::is_whitespace)(s)
+    }
 }
