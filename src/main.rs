@@ -1,4 +1,5 @@
 #![feature(binary_heap_into_iter_sorted)]
+#![feature(array_chunks)]
 
 use std::path::Path;
 
