@@ -159,23 +159,16 @@ mod file_system {
                 .nodes
                 .get(path)
                 .unwrap_or_else(|| panic!("Path {path:?} not found in file system."));
-            let mut size = 0;
 
             match node {
-                FileSystemNode::Directory { entries } => {
-                    let entries = entries
-                        .as_ref()
-                        .unwrap_or_else(|| panic!("Path {path:?} has no information on its entries"));
-                    for entry in entries {
-                        let p = path.join(entry);
-                        size += self.size_recursive(&p);
-                    }
-                }
-                FileSystemNode::File { size: filesize } => {
-                    size += filesize;
-                }
+                FileSystemNode::Directory { entries } => entries
+                    .as_ref()
+                    .unwrap_or_else(|| panic!("Path {path:?} has no information on its entries"))
+                    .iter()
+                    .map(|entry| self.size_recursive(&path.join(entry)))
+                    .sum(),
+                FileSystemNode::File { size } => *size,
             }
-            size
         }
     }
 
