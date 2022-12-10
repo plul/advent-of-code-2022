@@ -3,8 +3,7 @@ default: _build _build-release
 	cargo nextest run
 	cargo clippy --tests -- -D rust-2018-idioms
 	cargo +nightly fmt --check
-	cargo run
-	cargo build --release
+	./target/release/advent-of-code-2022
 	hyperfine --shell=none --warmup 5 './target/release/advent-of-code-2022'
 
 # List recipes
