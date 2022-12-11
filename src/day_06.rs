@@ -2,8 +2,8 @@
 //!
 //! https://adventofcode.com/2022/day/6
 
-use std::collections::btree_map::Entry;
-use std::collections::BTreeMap;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 
 pub fn part_1(input: &str) -> usize {
     find_unique_window(input, 4)
@@ -18,7 +18,7 @@ fn find_unique_window(input: &str, window_size: usize) -> usize {
     let mut iter_front = chars.iter();
     let iter_tail = chars.iter();
 
-    let mut window: BTreeMap<char, usize> = BTreeMap::new();
+    let mut window: HashMap<char, usize> = HashMap::new();
 
     for _ in 0..window_size {
         let c = iter_front.next().unwrap();
