@@ -232,7 +232,7 @@ mod parser {
 
     fn parse_ls_dir(s: &str) -> IResult<&str, LsEntryDirectory> {
         let (s, _) = tag("dir ")(s)?;
-        let (s, name) = terminated(take_till_whitespace1, line_ending)(s)?;
+        let (s, name) = terminated(take_till1(char::is_whitespace), line_ending)(s)?;
         Ok((
             s,
             LsEntryDirectory {
@@ -253,7 +253,7 @@ mod parser {
     fn parse_ls_file(s: &str) -> IResult<&str, LsEntryFile> {
         let (s, size) = u64(s)?;
         let (s, _) = char(' ')(s)?;
-        let (s, name) = terminated(take_till_whitespace1, line_ending)(s)?;
+        let (s, name) = terminated(take_till1(char::is_whitespace), line_ending)(s)?;
         let file = LsEntryFile {
             name: name.to_owned(),
             size,

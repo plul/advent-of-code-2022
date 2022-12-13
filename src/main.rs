@@ -16,6 +16,7 @@ mod day_08;
 mod day_09;
 mod day_10;
 mod day_11;
+mod day_12;
 
 #[derive(Parser, Debug)]
 struct Cli {
@@ -56,6 +57,8 @@ fn main() {
         solve(10, 2);
         solve(11, 1);
         solve(11, 2);
+        solve(12, 1);
+        solve(12, 2);
     }
 }
 
@@ -86,6 +89,8 @@ fn solve(day: usize, part: usize) {
         (10, 2) => day_10::part_2(&input).to_string(),
         (11, 1) => day_11::part_1(&input).to_string(),
         (11, 2) => day_11::part_2(&input).to_string(),
+        (12, 1) => day_12::part_1(&input).to_string(),
+        (12, 2) => day_12::part_2(&input).to_string(),
         _ => panic!(),
     };
     let elapsed = now.elapsed();
@@ -107,8 +112,4 @@ mod nom_complete {
     pub use nom::sequence::*;
     pub use nom::Finish;
     pub use nom::IResult;
-
-    pub fn take_till_whitespace1(s: &str) -> IResult<&str, &str> {
-        take_till1(char::is_whitespace)(s)
-    }
 }
