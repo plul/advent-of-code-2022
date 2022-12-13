@@ -17,6 +17,7 @@ mod day_09;
 mod day_10;
 mod day_11;
 mod day_12;
+mod day_13;
 
 #[derive(Parser, Debug)]
 struct Cli {
@@ -59,6 +60,8 @@ fn main() {
         solve(11, 2);
         solve(12, 1);
         solve(12, 2);
+        solve(13, 1);
+        solve(13, 2);
     }
 }
 
@@ -91,6 +94,8 @@ fn solve(day: usize, part: usize) {
         (11, 2) => day_11::part_2(&input).to_string(),
         (12, 1) => day_12::part_1(&input).to_string(),
         (12, 2) => day_12::part_2(&input).to_string(),
+        (13, 1) => day_13::part_1(&input).to_string(),
+        (13, 2) => day_13::part_2(&input).to_string(),
         _ => panic!(),
     };
     let elapsed = now.elapsed();
