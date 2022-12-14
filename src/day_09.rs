@@ -2,10 +2,8 @@
 //!
 //! https://adventofcode.com/2022/day/9
 
-use std::cmp::max;
+use crate::lib::vector_2d::Vector2D;
 use std::collections::HashSet;
-use std::ops::AddAssign;
-use std::ops::Sub;
 
 pub fn part_1(input: &str) -> usize {
     let moves = parser::parse(input);
@@ -20,7 +18,7 @@ pub fn part_2(input: &str) -> usize {
 }
 
 fn count_positions_visited_by_tail(mut rope: Rope, moves: Vec<Move>) -> usize {
-    let mut tail_visited = HashSet::<Vector2D>::new();
+    let mut tail_visited = HashSet::<Vector2D<i32>>::new();
     tail_visited.insert(rope.tail());
 
     for m in moves {
@@ -35,7 +33,9 @@ fn count_positions_visited_by_tail(mut rope: Rope, moves: Vec<Move>) -> usize {
 
 #[derive(Debug)]
 struct Rope {
-    knots: Vec<Vector2D>,
+    /// vector x: Horizontal, positive in the right-direction.
+    /// vector y: Vertical, positive in the up-direction.
+    knots: Vec<Vector2D<i32>>,
 }
 impl Rope {
     fn new(knots: usize) -> Self {
@@ -65,61 +65,8 @@ impl Rope {
         }
     }
 
-    fn tail(&self) -> Vector2D {
+    fn tail(&self) -> Vector2D<i32> {
         *self.knots.last().unwrap()
-    }
-}
-
-#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Hash)]
-struct Vector2D {
-    /// Horizontal, positive in the right-direction.
-    x: i32,
-
-    /// Vertical, positive in the up-direction.
-    y: i32,
-}
-impl Vector2D {
-    fn chebyshev_distance(self, other: Self) -> i32 {
-        let delta = self - other;
-        max(delta.x.abs(), delta.y.abs())
-    }
-    fn clamp_x(mut self, min: i32, max: i32) -> Self {
-        self.x = self.x.clamp(min, max);
-        self
-    }
-    fn clamp_y(mut self, min: i32, max: i32) -> Self {
-        self.y = self.y.clamp(min, max);
-        self
-    }
-}
-impl From<(i32, i32)> for Vector2D {
-    fn from(value: (i32, i32)) -> Self {
-        Vector2D {
-            x: value.0,
-            y: value.1,
-        }
-    }
-}
-impl<T> AddAssign<T> for Vector2D
-where
-    T: Into<Self>,
-{
-    fn add_assign(&mut self, rhs: T) {
-        let rhs = rhs.into();
-        self.x += rhs.x;
-        self.y += rhs.y;
-    }
-}
-impl<T> Sub<T> for Vector2D
-where
-    T: Into<Self>,
-{
-    type Output = Self;
-    fn sub(mut self, rhs: T) -> Self {
-        let rhs = rhs.into();
-        self.x -= rhs.x;
-        self.y -= rhs.y;
-        self
     }
 }
 

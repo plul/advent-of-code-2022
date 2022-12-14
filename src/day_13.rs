@@ -56,11 +56,11 @@ impl Ord for Value {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         match (self, other) {
             (Value::List(a), Value::List(b)) => a.cmp(b),
-            (Value::List(a), Value::Integer(b)) => {
+            (Value::List(_), Value::Integer(_)) => {
                 let b = Value::List(vec![other.clone()]);
                 self.cmp(&b)
             }
-            (Value::Integer(a), Value::List(b)) => {
+            (Value::Integer(_), Value::List(_)) => {
                 let a = Value::List(vec![self.clone()]);
                 a.cmp(other)
             }
