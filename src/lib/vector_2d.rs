@@ -11,6 +11,15 @@ pub struct Vector2D<T> {
 }
 
 impl<T> Vector2D<T> {
+    pub fn manhattan_distance(self, other: Self) -> T
+    where
+        T: Clone + Ord + Sub<Output = T> + Add<Output = T>,
+    {
+        let diff_x = max(self.x.clone(), other.x.clone()) - min(self.x, other.x);
+        let diff_y = max(self.y.clone(), other.y.clone()) - min(self.y, other.y);
+        diff_x + diff_y
+    }
+
     pub fn chebyshev_distance(self, other: Self) -> T
     where
         T: Clone + Ord + Sub<Output = T>,
