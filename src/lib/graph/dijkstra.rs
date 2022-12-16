@@ -26,7 +26,7 @@ where
     let mut edges: BinaryHeap<Reverse<Edge<'g, G>>> = BinaryHeap::new();
 
     let i = graph
-        .edges(&start_node)
+        .edges(start_node)
         .into_iter()
         .map(|edge| {
             let to = edge.to();
