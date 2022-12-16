@@ -21,6 +21,23 @@ mod day_13;
 mod day_14;
 mod day_15;
 
+mod nom_complete {
+    pub use nom::branch::*;
+    pub use nom::bytes::complete::*;
+    pub use nom::character::complete::*;
+    pub use nom::character::*;
+    pub use nom::combinator::*;
+    pub use nom::multi::*;
+    pub use nom::sequence::*;
+    pub use nom::Finish;
+    pub use nom::IResult;
+}
+
+mod lib {
+    pub mod graph;
+    pub mod vector_2d;
+}
+
 #[derive(Parser, Debug)]
 struct Cli {
     day: Option<usize>,
@@ -115,20 +132,4 @@ fn solve(day: usize, part: usize) {
 
 fn read_input(path: impl AsRef<Path>) -> String {
     std::fs::read_to_string(Path::new("input").join(path)).unwrap()
-}
-
-mod nom_complete {
-    pub use nom::branch::*;
-    pub use nom::bytes::complete::*;
-    pub use nom::character::complete::*;
-    pub use nom::character::*;
-    pub use nom::combinator::*;
-    pub use nom::multi::*;
-    pub use nom::sequence::*;
-    pub use nom::Finish;
-    pub use nom::IResult;
-}
-
-mod lib {
-    pub mod vector_2d;
 }

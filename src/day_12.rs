@@ -2,18 +2,26 @@
 //!
 //! https://adventofcode.com/2022/day/12
 
+use crate::lib::graph::dijkstra;
+use crate::lib::graph::Graph;
+use crate::lib::graph::GraphEdge;
+use crate::lib::graph::GraphEdgeCost;
+use std::borrow::Cow;
+
 pub fn part_1(input: &str) -> usize {
     let heightmap = parser::parse(input);
-    let start = heightmap.find_start();
-    shortest_path::shortest_path(&heightmap, start).unwrap()
+    let start_node = heightmap.find_start();
+    let end_node = heightmap.find_end();
+    dijkstra::shortest_path(&heightmap, &start_node, &end_node).unwrap()
 }
 
 pub fn part_2(input: &str) -> usize {
     let heightmap = parser::parse(input);
+    let end_node = heightmap.find_end();
     heightmap
         .find_coords_with_height('a')
         .iter()
-        .flat_map(|start| shortest_path::shortest_path(&heightmap, *start))
+        .flat_map(|start_node| dijkstra::shortest_path(&heightmap, &start_node, &end_node))
         .min()
         .unwrap()
 }
@@ -30,6 +38,52 @@ struct Heightmap {
     /// Nodes, where index of (row, col) from top left is: row * width + col.
     nodes: Vec<Node>,
 }
+impl<'g> Graph<'g> for Heightmap {
+    type Node = Coord;
+
+    type Edge = Edge;
+
+    /// Neighboring nodes that are at most 1 higher than current node.
+    fn edges(&self, from: &Self::Node) -> Vec<Self::Edge> {
+        let from_node = self.get_node(*from).unwrap();
+        let from_height = from_node.height();
+
+        let mut v = vec![];
+        if from.0 > 0 {
+            v.push((from.0 - 1, from.1));
+        }
+        v.push((from.0 + 1, from.1));
+        if from.1 > 0 {
+            v.push((from.0, from.1 - 1));
+        }
+        v.push((from.0, from.1 + 1));
+
+        v.into_iter()
+            .filter(|coord| {
+                let Some(node) = self.get_node(*coord) else { return false; };
+                from_height + 1 >= node.height()
+            })
+            .map(|coord| Edge { to: coord })
+            .collect()
+    }
+}
+
+struct Edge {
+    to: Coord,
+}
+impl<'g> GraphEdge<'g> for Edge {
+    type Node = Coord;
+    fn to(&self) -> Cow<'g, Self::Node> {
+        Cow::Owned(self.to)
+    }
+}
+impl GraphEdgeCost for Edge {
+    type Cost = usize;
+    fn cost(&self) -> Self::Cost {
+        1
+    }
+}
+
 impl Heightmap {
     fn get_node(&self, coord: Coord) -> Option<Node> {
         let (row, col) = coord;
@@ -58,8 +112,7 @@ impl Heightmap {
     }
 
     fn find_start(&self) -> Coord {
-        let start: Coord = self
-            .nodes
+        self.nodes
             .iter()
             .enumerate()
             .find(|(_idx, node)| matches!(node, Node::Start))
@@ -68,11 +121,20 @@ impl Heightmap {
                 let col = idx % self.n_cols;
                 (row, col)
             })
-            .unwrap();
+            .unwrap()
+    }
 
-        debug_assert_eq!(self.get_node(start), Some(Node::Start));
-
-        start
+    fn find_end(&self) -> Coord {
+        self.nodes
+            .iter()
+            .enumerate()
+            .find(|(_idx, node)| matches!(node, Node::End))
+            .map(|(idx, _node)| {
+                let row = idx / self.n_cols;
+                let col = idx % self.n_cols;
+                (row, col)
+            })
+            .unwrap()
     }
 }
 
@@ -90,107 +152,6 @@ impl Node {
             Node::End => 'z',
         };
         c as usize
-    }
-}
-
-/// Neighboring nodes that are at most 1 higher than current node.
-fn reachable(heightmap: &Heightmap, from: Coord) -> Vec<Coord> {
-    let from_node = heightmap.get_node(from).unwrap();
-    let from_height = from_node.height();
-
-    let mut v = vec![];
-    if from.0 > 0 {
-        v.push((from.0 - 1, from.1));
-    }
-    v.push((from.0 + 1, from.1));
-    if from.1 > 0 {
-        v.push((from.0, from.1 - 1));
-    }
-    v.push((from.0, from.1 + 1));
-
-    v.into_iter()
-        .filter(|coord| {
-            let Some(node) = heightmap.get_node(*coord) else { return false; };
-            from_height + 1 >= node.height()
-        })
-        .collect()
-}
-
-mod shortest_path {
-    use super::reachable;
-    use super::Coord;
-    use super::Heightmap;
-    use super::Node;
-    use std::cmp::Ordering;
-    use std::cmp::Reverse;
-    use std::collections::BinaryHeap;
-    use std::collections::HashSet;
-
-    /// Dijkstra's algo
-    pub(super) fn shortest_path(heightmap: &Heightmap, start: Coord) -> Option<usize> {
-        // Min-heap of edges by cumulative cost.
-        let mut edges: BinaryHeap<Reverse<Edge>> = BinaryHeap::new();
-        let mut visited = HashSet::<Coord>::new();
-
-        for coord in reachable(heightmap, start) {
-            let edge = Edge {
-                to: coord,
-                cumulative_cost: 1,
-            };
-            edges.push(Reverse(edge));
-        }
-        visited.insert(start);
-
-        while let Some(Reverse(edge)) = edges.pop() {
-            if visited.contains(&edge.to) {
-                continue;
-            }
-            visited.insert(edge.to);
-
-            let node = heightmap.get_node(edge.to).unwrap();
-            match node {
-                Node::Start | Node::Normal(_) => {
-                    for coord in reachable(heightmap, edge.to) {
-                        if visited.contains(&coord) {
-                            continue;
-                        }
-
-                        let e = Edge {
-                            to: coord,
-                            cumulative_cost: edge.cumulative_cost + 1,
-                        };
-                        edges.push(Reverse(e));
-                    }
-                }
-                Node::End => {
-                    return Some(edge.cumulative_cost);
-                }
-            }
-        }
-
-        None
-    }
-
-    /// Edge in shortest-path search.
-    ///
-    /// Implements PartialOrd/Ord by comparing cumulative cost.
-    #[derive(PartialEq, Eq, Debug, Clone, Copy)]
-    struct Edge {
-        /// Destination node.
-        to: Coord,
-
-        /// Cumulative cost from start node.
-        cumulative_cost: usize,
-    }
-    impl PartialOrd for Edge {
-        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-            Some(self.cmp(other))
-        }
-    }
-    impl Ord for Edge {
-        fn cmp(&self, other: &Self) -> Ordering {
-            self.cumulative_cost.cmp(&other.cumulative_cost)
-        }
     }
 }
 
