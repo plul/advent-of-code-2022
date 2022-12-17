@@ -1,20 +1,21 @@
-//! Day n: <title>
+//! Day 17: Pyroclastic Flow
 //!
-//! https://adventofcode.com/2022/day/n
+//! https://adventofcode.com/2022/day/17
 
 use crate::lib::vector_2d::Vector2D;
+use std::collections::VecDeque;
 use std::fmt::Display;
 
 pub fn part_1(input: &str) -> usize {
     let jets = parser::parse(input);
     let cave = simulate(jets, 2022);
-    cave.rows.len() - 1
+    cave.lines_cleared_tetris_style + cave.rows.len() - 1
 }
 
 pub fn part_2(input: &str) -> usize {
     let jets = parser::parse(input);
-    let cave = simulate(jets, 1000000000000);
-    cave.rows.len() - 1
+    let cave = simulate(jets, 1_000_000_000_000);
+    cave.lines_cleared_tetris_style + cave.rows.len() - 1
 }
 
 fn simulate(jets: Vec<Jet>, limit: usize) -> Cave {
@@ -22,9 +23,17 @@ fn simulate(jets: Vec<Jet>, limit: usize) -> Cave {
     let rock_pattern = rock_pattern();
 
     let floor = Row([true; 7]);
-    let mut cave = Cave { rows: vec![floor] };
+    let mut cave = Cave {
+        lines_cleared_tetris_style: 0,
+        rows: VecDeque::from([floor]),
+    };
 
-    for rock_shape in rock_pattern.take(limit) {
+    for (i, rock_shape) in rock_pattern.take(limit).enumerate() {
+        if (i / 10_000_000) * 10_000_000 == i {
+            let progress = i * 100 / 1_514_285_714_288;
+            println!("Simulating rock #{i}. Estimated progress: {progress} %");
+        }
+
         let mut falling_rock = FallingRock {
             coord: Vector2D::from((cave.rows.len() as i64 + 3, 2)),
             rock_shape,
@@ -147,6 +156,8 @@ impl FallingRock {
     }
 
     fn come_to_rest(self, cave: &mut Cave) {
+        let mut full_line = None;
+
         for part_of_rock in self
             .rock_shape
             .0
@@ -154,10 +165,21 @@ impl FallingRock {
             .map(|part_coord| part_coord + self.coord)
         {
             let (row, col) = (part_of_rock.x, part_of_rock.y);
-            if row >= cave.rows.len() as i64 {
-                cave.rows.push(Row([false; 7]));
+            while row >= cave.rows.len() as i64 {
+                cave.rows.push_back(Row([false; 7]));
             }
             cave.rows[row as usize].0[col as usize] = true;
+
+            if cave.rows[row as usize].0 == [true; 7] {
+                full_line = Some(row);
+            }
+        }
+
+        // Clear full rows
+        if let Some(row) = full_line {
+            let relevant_rows = cave.rows.split_off(row as usize);
+            cave.lines_cleared_tetris_style += cave.rows.len();
+            cave.rows = relevant_rows;
         }
     }
 }
@@ -167,7 +189,8 @@ impl FallingRock {
 struct RockShape(Vec<Vector2D<i64>>);
 
 struct Cave {
-    rows: Vec<Row>,
+    lines_cleared_tetris_style: usize,
+    rows: VecDeque<Row>,
 }
 impl Display for Cave {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -217,5 +240,5 @@ fn part_1_example() {
 
 #[test]
 fn part_2_example() {
-    assert_eq!(part_2(EXAMPLE), 1514285714288);
+    assert_eq!(part_2(EXAMPLE), 1_514_285_714_288);
 }
