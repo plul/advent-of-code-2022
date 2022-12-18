@@ -2,10 +2,6 @@
 //!
 //! https://adventofcode.com/2022/day/18
 
-use crate::lib::graph::Graph;
-use crate::lib::graph::GraphEdge;
-use std::borrow::Cow;
-use std::collections::HashMap;
 use std::collections::HashSet;
 
 pub fn part_1(input: &str) -> usize {
@@ -13,64 +9,74 @@ pub fn part_1(input: &str) -> usize {
     let droplet = Droplet {
         lava_cubes: lava_cubes.into_iter().collect(),
     };
-    droplet.lava_cubes.iter().map(|c| 6 - droplet.edges(c).len()).sum()
+
+    droplet
+        .lava_cubes
+        .iter()
+        .flat_map(|c| c.neighbors().filter(|n| !droplet.lava_cubes.contains(n)))
+        .count()
 }
 
 pub fn part_2(input: &str) -> usize {
-    let mut is_air_bubble: HashMap<Cube, bool> = HashMap::new();
+    let lava_cubes = parser::parse(input);
+    let droplet = Droplet {
+        lava_cubes: lava_cubes.into_iter().collect(),
+    };
+    let min_x = droplet.lava_cubes.iter().map(|c| c.0).min().unwrap() - 1;
+    let min_y = droplet.lava_cubes.iter().map(|c| c.1).min().unwrap() - 1;
+    let min_z = droplet.lava_cubes.iter().map(|c| c.2).min().unwrap() - 1;
+    let max_x = droplet.lava_cubes.iter().map(|c| c.0).max().unwrap() + 1;
+    let max_y = droplet.lava_cubes.iter().map(|c| c.1).max().unwrap() + 1;
+    let max_z = droplet.lava_cubes.iter().map(|c| c.2).max().unwrap() + 1;
 
-    // To determine if an air cube is in an air bubble, check if air cube has already been explored (is in is_air_bubble).
-    // If not, explore air with DFS.
-    // If DFS reaches a node that is known to be in outside air (is_air_bubble: false), then all the expored air cubes are in outside air.
-    // If DFS does not reach a node that is known to be in outside air, then all air cubes explored form their own air bubble.
-    // Bounds: (-1, -1, -1) to (max(x) + 1, max(y) + 1, max(z) + 1).
+    // DFS to find all cubes of air surrounding droplet.
+    let mut outside_air: HashSet<Cube> = HashSet::new();
+    let mut stack: Vec<Cube> = Vec::new();
+    let start = Cube(min_x, min_y, min_z);
+    debug_assert!(!droplet.lava_cubes.contains(&start));
+    stack.push(start);
+    outside_air.insert(start);
+    while let Some(cube) = stack.pop() {
+        let neighbors: Vec<Cube> = cube
+            .neighbors()
+            .filter(|c| {
+                (min_x..=max_x).contains(&c.0)
+                    && (min_y..=max_y).contains(&c.1)
+                    && (min_z..=max_z).contains(&c.2)
+            })
+            .filter(|c| !outside_air.contains(c))
+            .filter(|c| !droplet.lava_cubes.contains(c))
+            .collect();
+        outside_air.extend(neighbors.iter().copied());
+        stack.extend(neighbors);
+    }
 
-    // (-1, -1, -1) is known to be in outside air.
-    is_air_bubble.insert(Cube(-1,-1,-1), false);
-
-    parser::parse(input);
-    Default::default()
+    // For every lava cube in the droplet, count its surfaces that border cubes in outside air.
+    droplet
+        .lava_cubes
+        .iter()
+        .flat_map(|c| c.neighbors().filter(|c| outside_air.contains(c)))
+        .count()
 }
 
 struct Droplet {
     lava_cubes: HashSet<Cube>,
 }
 
-impl<'g> Graph<'g> for Droplet {
-    type Node = Cube;
-
-    type Edge = Edge;
-
-    fn edges(&'g self, from: &Self::Node) -> Vec<Self::Edge> {
-        let possible_neighbors = [
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct Cube(i64, i64, i64);
+impl Cube {
+    fn neighbors(self) -> impl Iterator<Item = Self> {
+        [
             (-1, 0, 0),
             (1, 0, 0),
             (0, -1, 0),
             (0, 1, 0),
             (0, 0, -1),
             (0, 0, 1),
-        ];
-        possible_neighbors
-            .into_iter()
-            .map(|d| Cube(from.0 + d.0, from.1 + d.1, from.2 + d.2))
-            .filter(|n| self.lava_cubes.contains(n))
-            .map(|to| Edge { to })
-            .collect()
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-struct Cube(i64, i64, i64);
-
-struct Edge {
-    to: Cube,
-}
-
-impl<'g> GraphEdge<'g> for Edge {
-    type Node = Cube;
-
-    fn to(&self) -> Cow<'g, Self::Node> {
-        Cow::Owned(self.to)
+        ]
+        .into_iter()
+        .map(move |d| Cube(self.0 + d.0, self.1 + d.1, self.2 + d.2))
     }
 }
 
