@@ -21,7 +21,7 @@ pub fn part_2(input: &str) -> usize {
     heightmap
         .find_coords_with_height('a')
         .iter()
-        .flat_map(|start_node| dijkstra::shortest_path(&heightmap, &start_node, &end_node))
+        .flat_map(|start_node| dijkstra::shortest_path(&heightmap, start_node, &end_node))
         .min()
         .unwrap()
 }

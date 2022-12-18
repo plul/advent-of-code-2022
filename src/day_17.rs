@@ -3,44 +3,54 @@
 //! https://adventofcode.com/2022/day/17
 
 use crate::lib::vector_2d::Vector2D;
+use std::cmp::max;
 use std::collections::VecDeque;
 use std::fmt::Display;
 
 pub fn part_1(input: &str) -> usize {
     let jets = parser::parse(input);
     let cave = simulate(jets, 2022);
-    cave.lines_cleared_tetris_style + cave.rows.len() - 1
+    cave.past_rows + cave.rows.len() - 1
 }
 
+/// Idea with this one is to detect when there is a cycle.
+/// In addition, full lines causes rows below to be forgotten as a memory usage optimization.
 pub fn part_2(input: &str) -> usize {
     let jets = parser::parse(input);
     let cave = simulate(jets, 1_000_000_000_000);
-    cave.lines_cleared_tetris_style + cave.rows.len() - 1
+    cave.past_rows + cave.rows.len() - 1
 }
 
 fn simulate(jets: Vec<Jet>, limit: usize) -> Cave {
     let mut jet_pattern = jet_pattern(&jets);
-    let rock_pattern = rock_pattern();
+    let mut rock_pattern = rock_pattern();
+    let max_rock_height = 3;
 
     let floor = Row([true; 7]);
     let mut cave = Cave {
-        lines_cleared_tetris_style: 0,
+        past_rows: 0,
         rows: VecDeque::from([floor]),
     };
 
-    for (i, rock_shape) in rock_pattern.take(limit).enumerate() {
-        if (i / 10_000_000) * 10_000_000 == i {
-            let progress = i * 100 / 1_514_285_714_288;
-            println!("Simulating rock #{i}. Estimated progress: {progress} %");
-        }
+    let mut snapshots: Vec<Snapshot> = Vec::new();
+    let mut use_snapshots = true;
 
+    // Max depth that a fallen rock comes to rest at.
+    // If the rock comes to rest on top of the top row, then that is a depth of 0.
+    let mut max_fall_depth: i64 = 0;
+
+    let mut fallen_rocks = 0;
+    while fallen_rocks < limit {
+        let (rock_shape, rock_pattern_idx) = rock_pattern.next().unwrap();
         let mut falling_rock = FallingRock {
             coord: Vector2D::from((cave.rows.len() as i64 + 3, 2)),
             rock_shape,
+            fall_depth: -3,
         };
 
         loop {
-            let jet = jet_pattern.next().unwrap();
+            let (jet, jet_pattern_idx) = jet_pattern.next().unwrap();
+
             let movement: Vector2D<i64> = match jet {
                 Jet::Left => (0, -1),
                 Jet::Right => (0, 1),
@@ -53,8 +63,50 @@ fn simulate(jets: Vec<Jet>, limit: usize) -> Cave {
             let down = (-1, 0).into();
             if falling_rock.can_move(down, &cave) {
                 falling_rock.apply_movement(down);
+                falling_rock.fall_depth += 1;
             } else {
+                max_fall_depth = max(max_fall_depth, falling_rock.fall_depth);
                 falling_rock.come_to_rest(&mut cave);
+                fallen_rocks += 1;
+
+                if use_snapshots {
+                    if let Some(snapshot) = snapshots.iter().find(|s| {
+                        s.jet_pattern_idx == jet_pattern_idx
+                            && s.rock_pattern_idx == rock_pattern_idx
+                            && s.cave
+                                .rows
+                                .iter()
+                                .rev()
+                                .take(max_fall_depth as usize + max_rock_height)
+                                .eq(cave
+                                    .rows
+                                    .iter()
+                                    .rev()
+                                    .take(max_fall_depth as usize + max_rock_height))
+                    }) {
+                        let rocks_per_cycle = fallen_rocks - snapshot.fallen_rocks;
+                        let remaining_rocks_to_simulate = limit - fallen_rocks;
+                        let n_cycles_to_fast_forward = remaining_rocks_to_simulate / rocks_per_cycle;
+                        let rows_added_per_cycle = (cave.past_rows + cave.rows.len())
+                            - (snapshot.cave.past_rows + snapshot.cave.rows.len());
+                        cave.past_rows += n_cycles_to_fast_forward * rows_added_per_cycle;
+                        fallen_rocks += n_cycles_to_fast_forward * rocks_per_cycle;
+
+                        snapshots.clear();
+                        use_snapshots = false;
+                    }
+                }
+
+                if use_snapshots {
+                    let snapshot = Snapshot {
+                        fallen_rocks,
+                        jet_pattern_idx,
+                        rock_pattern_idx,
+                        cave: cave.clone(),
+                    };
+                    snapshots.push(snapshot);
+                }
+
                 break;
             }
         }
@@ -63,11 +115,11 @@ fn simulate(jets: Vec<Jet>, limit: usize) -> Cave {
     cave
 }
 
-fn jet_pattern(jets: &[Jet]) -> impl Iterator<Item = &Jet> {
-    std::iter::repeat(jets).flat_map(|jets| jets.iter())
+fn jet_pattern(jets: &[Jet]) -> impl Iterator<Item = (&Jet, usize)> {
+    std::iter::repeat(jets).flat_map(|jets| jets.iter().zip(0..))
 }
 
-fn rock_pattern() -> impl Iterator<Item = RockShape> {
+fn rock_pattern() -> impl Iterator<Item = (RockShape, usize)> {
     // Rock shaped like -
     let rock_1 = RockShape(
         [(0, 0), (0, 1), (0, 2), (0, 3)]
@@ -110,7 +162,15 @@ fn rock_pattern() -> impl Iterator<Item = RockShape> {
 
     let rocks = vec![rock_1, rock_2, rock_3, rock_4, rock_5];
 
-    std::iter::repeat(rocks).flat_map(|rocks| rocks.into_iter())
+    std::iter::repeat(rocks).flat_map(|rocks| rocks.into_iter().zip(0..))
+}
+
+#[derive(Debug)]
+struct Snapshot {
+    fallen_rocks: usize,
+    jet_pattern_idx: usize,
+    rock_pattern_idx: usize,
+    cave: Cave,
 }
 
 #[derive(Clone, Copy)]
@@ -119,10 +179,11 @@ enum Jet {
     Right,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct FallingRock {
     coord: Vector2D<i64>,
     rock_shape: RockShape,
+    fall_depth: i64,
 }
 impl FallingRock {
     fn can_move(&self, movement: Vector2D<i64>, cave: &Cave) -> bool {
@@ -171,31 +232,36 @@ impl FallingRock {
             cave.rows[row as usize].0[col as usize] = true;
 
             if cave.rows[row as usize].0 == [true; 7] {
-                full_line = Some(row);
+                if let Some(r) = full_line {
+                    full_line = Some(max(r, row));
+                } else {
+                    full_line = Some(row);
+                }
             }
         }
 
-        // Clear full rows
+        // Clear if full row
         if let Some(row) = full_line {
             let relevant_rows = cave.rows.split_off(row as usize);
-            cave.lines_cleared_tetris_style += cave.rows.len();
+            cave.past_rows += cave.rows.len();
             cave.rows = relevant_rows;
         }
     }
 }
 
 /// Rocks in terms of (row, col), where lower left point is (0,0).
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 struct RockShape(Vec<Vector2D<i64>>);
 
+#[derive(Clone, Debug)]
 struct Cave {
-    lines_cleared_tetris_style: usize,
+    past_rows: usize,
     rows: VecDeque<Row>,
 }
 impl Display for Cave {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for row in self.rows.iter().rev() {
-            write!(f, "|")?;
+        for (idx, row) in self.rows.iter().rev().enumerate() {
+            write!(f, "{idx} |")?;
             for col in row.0 {
                 if col {
                     write!(f, "#")?;
@@ -210,7 +276,7 @@ impl Display for Cave {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Row([bool; 7]);
 
 mod parser {
