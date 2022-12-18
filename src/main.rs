@@ -22,6 +22,7 @@ mod day_14;
 mod day_15;
 mod day_16;
 mod day_17;
+mod day_18;
 
 mod nom_complete {
     pub use nom::branch::*;
@@ -91,6 +92,8 @@ fn main() {
         solve(16, 2);
         solve(17, 1);
         solve(17, 2);
+        solve(18, 1);
+        solve(18, 2);
     }
 }
 
@@ -133,6 +136,8 @@ fn solve(day: usize, part: usize) {
         (16, 2) => day_16::part_2(&input).to_string(),
         (17, 1) => day_17::part_1(&input).to_string(),
         (17, 2) => day_17::part_2(&input).to_string(),
+        (18, 1) => day_18::part_1(&input).to_string(),
+        (18, 2) => day_18::part_2(&input).to_string(),
         _ => panic!(),
     };
     let elapsed = now.elapsed();
