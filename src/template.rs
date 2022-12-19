@@ -17,7 +17,9 @@ mod parser {
     use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<()> {
-        all_consuming(many0(main_parser))(s).unwrap().1
+        all_consuming(terminated(separated_list1(line_ending, main_parser), multispace0))(s)
+            .unwrap()
+            .1
     }
 
     fn main_parser(s: &str) -> IResult<&str, ()> {

@@ -1,5 +1,6 @@
 #![feature(binary_heap_into_iter_sorted)]
 #![feature(array_chunks)]
+#![feature(int_roundings)]
 
 use clap::Parser;
 use std::path::Path;
@@ -23,6 +24,7 @@ mod day_15;
 mod day_16;
 mod day_17;
 mod day_18;
+mod day_19;
 
 mod nom_complete {
     pub use nom::branch::*;
@@ -94,6 +96,8 @@ fn main() {
         solve(17, 2);
         solve(18, 1);
         solve(18, 2);
+        solve(19, 1);
+        solve(19, 2);
     }
 }
 
@@ -138,6 +142,8 @@ fn solve(day: usize, part: usize) {
         (17, 2) => day_17::part_2(&input).to_string(),
         (18, 1) => day_18::part_1(&input).to_string(),
         (18, 2) => day_18::part_2(&input).to_string(),
+        (19, 1) => day_19::part_1(&input).to_string(),
+        (19, 2) => day_19::part_2(&input).to_string(),
         _ => panic!(),
     };
     let elapsed = now.elapsed();
