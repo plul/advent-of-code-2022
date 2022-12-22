@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+pub mod topological_sort;
 pub mod dijkstra;
 
 /// Directed graph.
