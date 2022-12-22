@@ -15,7 +15,7 @@ pub fn part_2(input: &str) -> i64 {
     let decryption_key = 811589153;
     numbers.iter_mut().for_each(|n| *n *= decryption_key);
     log::debug!("Decrypted numbers: {numbers:?}");
-    let mut mixed = mix_numbers(&numbers, 10);
+    let mixed = mix_numbers(&numbers, 10);
     grove_coordinates(&mixed).into_iter().sum()
 }
 
