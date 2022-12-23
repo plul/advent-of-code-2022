@@ -8,7 +8,7 @@ use crate::lib::graph::GraphEdge;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-pub fn part_1(input: &str) -> usize {
+pub fn part_1(input: &str) -> i64 {
     let monkeys = parser::parse(input);
 
     // Map name of monkey to its job
@@ -18,9 +18,27 @@ pub fn part_1(input: &str) -> usize {
     let root = monkey_graph.monkey_map.get("root").unwrap();
 
     let topologically_sorted_monkeys = graph::topological_sort::topological_sort(&monkey_graph, root).unwrap();
-    dbg!(topologically_sorted_monkeys);
+    debug_assert_eq!(topologically_sorted_monkeys.last().unwrap().name, "root");
 
-    Default::default()
+    let mut monkey_yell = HashMap::<&str, i64>::new();
+    for monkey in topologically_sorted_monkeys.iter() {
+        let n = match &monkey.job {
+            Job::SpecificNumber(n) => *n,
+            Job::MathOperation { monkey_1, operator, monkey_2 } => {
+                let monkey_1_yell = monkey_yell.get(monkey_1.as_str()).unwrap();
+                let monkey_2_yell = monkey_yell.get(monkey_2.as_str()).unwrap();
+                match operator {
+                    Operator::Add => monkey_1_yell + monkey_2_yell,
+                    Operator::Subtract => monkey_1_yell - monkey_2_yell,
+                    Operator::Multiply => monkey_1_yell * monkey_2_yell,
+                    Operator::Divide => monkey_1_yell / monkey_2_yell,
+                }
+            },
+        };
+        monkey_yell.insert(&monkey.name, n);
+    }
+
+    *monkey_yell.get("root").unwrap()
 }
 
 pub fn part_2(input: &str) -> usize {
