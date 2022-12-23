@@ -101,6 +101,5 @@ fn part_1_example() {
 
 #[test]
 fn part_2_example() {
-    env_logger::builder().is_test(true).parse_default_env().init();
     assert_eq!(part_2(EXAMPLE), 1623178306);
 }
