@@ -52,6 +52,7 @@ struct Cli {
 }
 
 fn main() {
+    env_logger::builder().parse_default_env().init();
     let cli = Cli::parse();
 
     if let Some(day) = cli.day {
