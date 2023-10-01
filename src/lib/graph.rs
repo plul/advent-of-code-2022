@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
-pub mod topological_sort;
 pub mod dijkstra;
+pub mod topological_sort;
 
 /// Directed graph.
 pub trait Graph<'g> {

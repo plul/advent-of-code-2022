@@ -15,8 +15,7 @@ where
     let mut topological_order: Vec<Cow<'g, G::Node>> = vec![];
     let mut visited_nodes = HashSet::<Cow<'_, G::Node>>::new();
     visited_nodes.insert(Cow::Borrowed(start_node));
-    let mut stack: Vec<(Cow<'g, G::Node>, Vec<G::Edge>)> =
-        vec![(Cow::Borrowed(start_node), graph.edges(start_node))];
+    let mut stack: Vec<(Cow<'g, G::Node>, Vec<G::Edge>)> = vec![(Cow::Borrowed(start_node), graph.edges(start_node))];
 
     while let Some((_node, node_edges)) = stack.last_mut() {
         if let Some(edge) = node_edges.pop() {

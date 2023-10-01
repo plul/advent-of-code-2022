@@ -18,10 +18,7 @@ pub fn part_2(input: &str) -> usize {
     let elves: Vec<Elf> = parser::parse(input);
 
     // For each elf, put the total number of calories into a max heap.
-    let heap = elves
-        .iter()
-        .map(|elf| elf.total_calories())
-        .collect::<BinaryHeap<usize>>();
+    let heap = elves.iter().map(|elf| elf.total_calories()).collect::<BinaryHeap<usize>>();
 
     // Take out the three max calorie totals and sum them
     let solution = heap.into_iter_sorted().take(3).sum();

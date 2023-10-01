@@ -18,12 +18,7 @@ pub fn part_2(input: &str) -> i64 {
 }
 
 fn grove_coordinates(mixed: &[i64]) -> [i64; 3] {
-    let mixed_index_of_zero = mixed
-        .iter()
-        .enumerate()
-        .find(|&(_, &n)| n == 0)
-        .map(|(idx, _)| idx)
-        .unwrap();
+    let mixed_index_of_zero = mixed.iter().enumerate().find(|&(_, &n)| n == 0).map(|(idx, _)| idx).unwrap();
 
     let x = {
         let i = (mixed_index_of_zero + 1000).rem_euclid(mixed.len());

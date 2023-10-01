@@ -12,10 +12,7 @@ pub fn part_1(input: &str) -> i64 {
     let monkeys = parser::parse(input);
 
     // Map name of monkey to its job
-    let monkey_map: HashMap<String, Monkey> = monkeys
-        .into_iter()
-        .map(|monkey| (monkey.name.clone(), monkey))
-        .collect();
+    let monkey_map: HashMap<String, Monkey> = monkeys.into_iter().map(|monkey| (monkey.name.clone(), monkey)).collect();
     let monkey_graph = MonkeyGraph { monkey_map };
     let root = monkey_graph.monkey_map.get("root").unwrap();
 
@@ -45,16 +42,10 @@ pub fn part_1(input: &str) -> i64 {
 pub fn part_2(input: &str) -> i64 {
     let monkeys = parser::parse(input);
 
-    let monkeys: HashMap<String, Monkey> = monkeys
-        .into_iter()
-        .map(|monkey| (monkey.name.clone(), monkey))
-        .collect();
+    let monkeys: HashMap<String, Monkey> = monkeys.into_iter().map(|monkey| (monkey.name.clone(), monkey)).collect();
 
     let root = &monkeys["root"];
-    let Job::MathOperation {
-        monkey_1, monkey_2, ..
-    } = &root.job
-    else {
+    let Job::MathOperation { monkey_1, monkey_2, .. } = &root.job else {
         panic!();
     };
     let monkey_1 = &monkeys[monkey_1];
@@ -67,12 +58,7 @@ pub fn part_2(input: &str) -> i64 {
 
     let indeterminate_monkey = if monkey_1_n.is_none() { monkey_1 } else { monkey_2 };
 
-    let humn_yell = what_should_humn_yell_to_make_this_monkey_yell_n(
-        &monkeys,
-        &cache,
-        indeterminate_monkey,
-        expected_result,
-    );
+    let humn_yell = what_should_humn_yell_to_make_this_monkey_yell_n(&monkeys, &cache, indeterminate_monkey, expected_result);
 
     #[cfg(debug_assertions)]
     {
@@ -115,30 +101,14 @@ fn what_should_humn_yell_to_make_this_monkey_yell_n(
             let monkey_2_yell = cache.get(monkey_2).copied();
 
             let humn_should_yell = match (monkey_1_yell, operator, monkey_2_yell) {
-                (None, Operator::Add, Some(x)) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n - x)
-                }
-                (None, Operator::Subtract, Some(x)) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n + x)
-                }
-                (None, Operator::Multiply, Some(x)) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n / x)
-                }
-                (None, Operator::Divide, Some(x)) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n * x)
-                }
-                (Some(x), Operator::Add, None) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, n - x)
-                }
-                (Some(x), Operator::Subtract, None) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, x - n)
-                }
-                (Some(x), Operator::Multiply, None) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, n / x)
-                }
-                (Some(x), Operator::Divide, None) => {
-                    what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, x / n)
-                }
+                (None, Operator::Add, Some(x)) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n - x),
+                (None, Operator::Subtract, Some(x)) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n + x),
+                (None, Operator::Multiply, Some(x)) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n / x),
+                (None, Operator::Divide, Some(x)) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_1, n * x),
+                (Some(x), Operator::Add, None) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, n - x),
+                (Some(x), Operator::Subtract, None) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, x - n),
+                (Some(x), Operator::Multiply, None) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, n / x),
+                (Some(x), Operator::Divide, None) => what_should_humn_yell_to_make_this_monkey_yell_n(monkeys, cache, monkey_2, x / n),
 
                 (Some(_), _, Some(_)) => panic!(),
                 (None, _, None) => {
@@ -201,11 +171,7 @@ fn cached_descend<'g>(
 }
 
 // No caching, and ability to override
-fn brute_descend<'g>(
-    monkeys: &'g HashMap<String, Monkey>,
-    monkey: &'g Monkey,
-    yell_override: Option<(&str, i64)>,
-) -> Option<i64> {
+fn brute_descend<'g>(monkeys: &'g HashMap<String, Monkey>, monkey: &'g Monkey, yell_override: Option<(&str, i64)>) -> Option<i64> {
     if let Some((name, yell)) = yell_override {
         if name == monkey.name {
             return Some(yell);
@@ -301,12 +267,9 @@ mod parser {
     use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Monkey> {
-        all_consuming(terminated(
-            separated_list1(line_ending, parse_monkey),
-            multispace0,
-        ))(s)
-        .unwrap()
-        .1
+        all_consuming(terminated(separated_list1(line_ending, parse_monkey), multispace0))(s)
+            .unwrap()
+            .1
     }
 
     fn parse_monkey(s: &str) -> IResult<&str, Monkey> {
@@ -314,10 +277,7 @@ mod parser {
 
         let (s, job) = alt((parse_job_specific, parse_job_operation))(s)?;
 
-        let monkey = Monkey {
-            name: name.to_owned(),
-            job,
-        };
+        let monkey = Monkey { name: name.to_owned(), job };
         Ok((s, monkey))
     }
 

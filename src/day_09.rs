@@ -57,7 +57,7 @@ impl Rope {
         // Move rest of knots
         for idx in 0.. {
             let knot_a = self.knots.get(idx).copied().unwrap();
-            let Some(knot_b) = self.knots.get_mut(idx+1) else { break };
+            let Some(knot_b) = self.knots.get_mut(idx + 1) else { break };
 
             if knot_a.chebyshev_distance(*knot_b) > 1 {
                 *knot_b += (knot_a - *knot_b).clamp_x(-1, 1).clamp_y(-1, 1);
@@ -93,8 +93,7 @@ mod parser {
     }
 
     fn main_parser(s: &str) -> IResult<&str, Move> {
-        let (s, (direction, count)) =
-            terminated(separated_pair(one_of("RLUD"), char(' '), u32), line_ending)(s)?;
+        let (s, (direction, count)) = terminated(separated_pair(one_of("RLUD"), char(' '), u32), line_ending)(s)?;
         let direction = match direction {
             'R' => Direction::Right,
             'L' => Direction::Left,

@@ -57,18 +57,8 @@ fn build_file_system(commands: impl IntoIterator<Item = Command>) -> FileSystem 
                 }
             },
             Command::Ls(ls) => {
-                let entries = ls
-                    .entries
-                    .iter()
-                    .map(LsEntry::name)
-                    .map(ToOwned::to_owned)
-                    .collect();
-                file_system.insert(
-                    cwd.clone(),
-                    FileSystemNode::Directory {
-                        entries: Some(entries),
-                    },
-                );
+                let entries = ls.entries.iter().map(LsEntry::name).map(ToOwned::to_owned).collect();
+                file_system.insert(cwd.clone(), FileSystemNode::Directory { entries: Some(entries) });
 
                 for entry in ls.entries {
                     match entry {
@@ -155,10 +145,7 @@ mod file_system {
         ///
         /// Will panic if any path during traversal is not found in filesystem.
         pub fn size_recursive(&self, path: &Path) -> u64 {
-            let node = self
-                .nodes
-                .get(path)
-                .unwrap_or_else(|| panic!("Path {path:?} not found in file system."));
+            let node = self.nodes.get(path).unwrap_or_else(|| panic!("Path {path:?} not found in file system."));
 
             match node {
                 FileSystemNode::Directory { entries } => entries
@@ -233,31 +220,18 @@ mod parser {
     fn parse_ls_dir(s: &str) -> IResult<&str, LsEntryDirectory> {
         let (s, _) = tag("dir ")(s)?;
         let (s, name) = terminated(take_till1(char::is_whitespace), line_ending)(s)?;
-        Ok((
-            s,
-            LsEntryDirectory {
-                name: name.to_owned(),
-            },
-        ))
+        Ok((s, LsEntryDirectory { name: name.to_owned() }))
     }
     #[test]
     fn test_parse_ls_dir() {
-        assert_eq!(
-            parse_ls_dir("dir d\n").unwrap().1,
-            LsEntryDirectory {
-                name: String::from("d")
-            }
-        );
+        assert_eq!(parse_ls_dir("dir d\n").unwrap().1, LsEntryDirectory { name: String::from("d") });
     }
 
     fn parse_ls_file(s: &str) -> IResult<&str, LsEntryFile> {
         let (s, size) = u64(s)?;
         let (s, _) = char(' ')(s)?;
         let (s, name) = terminated(take_till1(char::is_whitespace), line_ending)(s)?;
-        let file = LsEntryFile {
-            name: name.to_owned(),
-            size,
-        };
+        let file = LsEntryFile { name: name.to_owned(), size };
         Ok((s, file))
     }
 }

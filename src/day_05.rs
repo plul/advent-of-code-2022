@@ -59,10 +59,7 @@ mod parser {
         let (s, _) = line_ending(s)?;
         let (s, move_instructions) = many1(parse_move_instruction_line)(s)?;
 
-        assert_eq!(
-            stack_lines.iter().map(|s| s.len()).max().unwrap(),
-            stack_numbers.len()
-        );
+        assert_eq!(stack_lines.iter().map(|s| s.len()).max().unwrap(), stack_numbers.len());
 
         let mut stacks: Vec<Vec<char>> = vec![Vec::new(); stack_numbers.len()];
         for stack_line in stack_lines.into_iter().rev() {
@@ -73,10 +70,7 @@ mod parser {
             }
         }
 
-        let input = Input {
-            stacks,
-            move_instructions,
-        };
+        let input = Input { stacks, move_instructions };
 
         Ok((s, input))
     }
@@ -94,10 +88,7 @@ mod parser {
     #[test]
     fn test_parse_stack_line() {
         assert_eq!(parse_stack_line("    [D]\n").unwrap().1, vec![None, Some('D')]);
-        assert_eq!(
-            parse_stack_line("[N] [C]\n").unwrap().1,
-            vec![Some('N'), Some('C')]
-        );
+        assert_eq!(parse_stack_line("[N] [C]\n").unwrap().1, vec![Some('N'), Some('C')]);
     }
 
     fn parse_stack_number_line(s: &str) -> IResult<&str, Vec<u32>> {

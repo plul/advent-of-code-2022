@@ -48,10 +48,7 @@ impl<T> Vector2D<T> {
 
 impl<T> From<(T, T)> for Vector2D<T> {
     fn from(value: (T, T)) -> Self {
-        Vector2D {
-            x: value.0,
-            y: value.1,
-        }
+        Vector2D { x: value.0, y: value.1 }
     }
 }
 

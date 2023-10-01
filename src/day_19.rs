@@ -15,13 +15,7 @@ pub fn part_1(input: &str) -> i64 {
         .iter()
         .map(|&blueprint| {
             let mut cache = HashMap::default();
-            let geodes = max_geodes_dfs(
-                blueprint,
-                Robots::default(),
-                Resources::default(),
-                minutes,
-                &mut cache,
-            );
+            let geodes = max_geodes_dfs(blueprint, Robots::default(), Resources::default(), minutes, &mut cache);
             (blueprint, geodes)
         })
         .map(|(blueprint, max_geodes)| quality_level(blueprint.id, max_geodes))
@@ -40,13 +34,7 @@ pub fn part_2(input: &str) -> i64 {
         .take(3)
         .map(|&blueprint| {
             let mut cache = HashMap::default();
-            max_geodes_dfs(
-                blueprint,
-                Robots::default(),
-                Resources::default(),
-                minutes,
-                &mut cache,
-            )
+            max_geodes_dfs(blueprint, Robots::default(), Resources::default(), minutes, &mut cache)
         })
         .product()
 }
@@ -172,19 +160,15 @@ fn max_geodes_dfs(
     }
 
     'obsidian_robot: {
-        if (blueprint.obsidian_robot_ore_cost > 0 && robots.ore == 0)
-            || (blueprint.obsidian_robot_clay_cost > 0 && robots.clay == 0)
-        {
+        if (blueprint.obsidian_robot_ore_cost > 0 && robots.ore == 0) || (blueprint.obsidian_robot_clay_cost > 0 && robots.clay == 0) {
             break 'obsidian_robot;
         }
 
         let mut robots = robots;
         let mut resources = resources;
         let mut minutes = minutes;
-        let minutes_gathering_ore =
-            max(0, blueprint.obsidian_robot_ore_cost - resources.ore).div_ceil(robots.ore);
-        let minutes_gathering_clay =
-            max(0, blueprint.obsidian_robot_clay_cost - resources.clay).div_ceil(robots.clay);
+        let minutes_gathering_ore = max(0, blueprint.obsidian_robot_ore_cost - resources.ore).div_ceil(robots.ore);
+        let minutes_gathering_clay = max(0, blueprint.obsidian_robot_clay_cost - resources.clay).div_ceil(robots.clay);
         let minutes_gathering = max(minutes_gathering_ore, minutes_gathering_clay);
         minutes -= minutes_gathering + 1;
         if minutes < 0 {
@@ -226,19 +210,15 @@ fn max_geodes_dfs(
     }
 
     'geode_robot: {
-        if (blueprint.geode_robot_ore_cost > 0 && robots.ore == 0)
-            || (blueprint.geode_robot_obsidian_cost > 0 && robots.obsidian == 0)
-        {
+        if (blueprint.geode_robot_ore_cost > 0 && robots.ore == 0) || (blueprint.geode_robot_obsidian_cost > 0 && robots.obsidian == 0) {
             break 'geode_robot;
         }
 
         let mut robots = robots;
         let mut resources = resources;
         let mut minutes = minutes;
-        let minutes_gathering_ore =
-            max(0, blueprint.geode_robot_ore_cost - resources.ore).div_ceil(robots.ore);
-        let minutes_gathering_obsidian =
-            max(0, blueprint.geode_robot_obsidian_cost - resources.obsidian).div_ceil(robots.obsidian);
+        let minutes_gathering_ore = max(0, blueprint.geode_robot_ore_cost - resources.ore).div_ceil(robots.ore);
+        let minutes_gathering_obsidian = max(0, blueprint.geode_robot_obsidian_cost - resources.obsidian).div_ceil(robots.obsidian);
         let minutes_gathering = max(minutes_gathering_ore, minutes_gathering_obsidian);
         minutes -= minutes_gathering + 1;
         if minutes < 0 {
@@ -352,12 +332,9 @@ mod parser {
     use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Blueprint> {
-        all_consuming(terminated(
-            separated_list1(line_ending, parse_blueprint),
-            multispace0,
-        ))(s)
-        .unwrap()
-        .1
+        all_consuming(terminated(separated_list1(line_ending, parse_blueprint), multispace0))(s)
+            .unwrap()
+            .1
     }
 
     fn parse_blueprint(s: &str) -> IResult<&str, Blueprint> {

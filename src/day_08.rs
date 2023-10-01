@@ -5,11 +5,10 @@
 pub fn part_1(input: &str) -> usize {
     let patch_of_tall_trees = parser::parse(input);
 
-    let tree_iter = patch_of_tall_trees.iter().enumerate().flat_map(|(row_idx, row)| {
-        row.iter()
-            .enumerate()
-            .map(move |(col_idx, tree)| (row_idx, col_idx, tree))
-    });
+    let tree_iter = patch_of_tall_trees
+        .iter()
+        .enumerate()
+        .flat_map(|(row_idx, row)| row.iter().enumerate().map(move |(col_idx, tree)| (row_idx, col_idx, tree)));
 
     tree_iter
         .filter(|(row_idx, col_idx, _tree)| is_visible(&patch_of_tall_trees, *row_idx, *col_idx))
@@ -19,11 +18,10 @@ pub fn part_1(input: &str) -> usize {
 pub fn part_2(input: &str) -> usize {
     let patch_of_tall_trees = parser::parse(input);
 
-    let tree_iter = patch_of_tall_trees.iter().enumerate().flat_map(|(row_idx, row)| {
-        row.iter()
-            .enumerate()
-            .map(move |(col_idx, tree)| (row_idx, col_idx, tree))
-    });
+    let tree_iter = patch_of_tall_trees
+        .iter()
+        .enumerate()
+        .flat_map(|(row_idx, row)| row.iter().enumerate().map(move |(col_idx, tree)| (row_idx, col_idx, tree)));
 
     tree_iter
         .map(|(row_idx, col_idx, _tree)| scenic_score(&patch_of_tall_trees, row_idx, col_idx))

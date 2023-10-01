@@ -16,8 +16,7 @@ use std::collections::HashSet;
 
 pub fn part_1(input: &str) -> i64 {
     let network_of_pipes = parser::parse(input);
-    let minutes_to_move_from_a_valve_to_any_other_valve =
-        compute_minutes_to_move_from_a_valve_to_any_other_valve(&network_of_pipes);
+    let minutes_to_move_from_a_valve_to_any_other_valve = compute_minutes_to_move_from_a_valve_to_any_other_valve(&network_of_pipes);
     let mut opened_valves: HashSet<&str> = HashSet::new();
 
     let mut actors = vec![Actor {
@@ -35,8 +34,7 @@ pub fn part_1(input: &str) -> i64 {
 
 pub fn part_2(input: &str) -> i64 {
     let network_of_pipes = parser::parse(input);
-    let minutes_to_move_from_a_valve_to_any_other_valve =
-        compute_minutes_to_move_from_a_valve_to_any_other_valve(&network_of_pipes);
+    let minutes_to_move_from_a_valve_to_any_other_valve = compute_minutes_to_move_from_a_valve_to_any_other_valve(&network_of_pipes);
     let mut opened_valves: HashSet<&str> = HashSet::new();
 
     let mut actors = vec![
@@ -58,9 +56,7 @@ pub fn part_2(input: &str) -> i64 {
     )
 }
 
-fn compute_minutes_to_move_from_a_valve_to_any_other_valve<'a>(
-    network_of_pipes: &NetworkOfPipes<'a>,
-) -> HashMap<(&'a str, &'a str), u64> {
+fn compute_minutes_to_move_from_a_valve_to_any_other_valve<'a>(network_of_pipes: &NetworkOfPipes<'a>) -> HashMap<(&'a str, &'a str), u64> {
     let mut minutes_to_move_from_a_valve_to_any_other_valve: HashMap<(&str, &str), u64> = HashMap::new();
     for valve in network_of_pipes.valves.values() {
         for other in network_of_pipes.valves.values() {
@@ -87,12 +83,7 @@ fn dfs<'a>(
     let actor = actors.pop().unwrap();
 
     // Max score by not going further with present actor.
-    let score_1 = dfs(
-        network_of_pipes,
-        minutes_to_move_from_a_valve_to_any_other_valve,
-        actors,
-        opened_valves,
-    );
+    let score_1 = dfs(network_of_pipes, minutes_to_move_from_a_valve_to_any_other_valve, actors, opened_valves);
 
     // Max score by still going further with present actor.
     let score_2 = network_of_pipes
@@ -108,8 +99,7 @@ fn dfs<'a>(
             let mut minutes = actor.minutes;
 
             // Move to valve
-            minutes -= minutes_to_move_from_a_valve_to_any_other_valve
-                [&(actor.name_of_current_valve, valve.name)] as i64;
+            minutes -= minutes_to_move_from_a_valve_to_any_other_valve[&(actor.name_of_current_valve, valve.name)] as i64;
             // Open valve
             minutes -= 1;
             if minutes < 0 {
@@ -121,13 +111,8 @@ fn dfs<'a>(
                 minutes,
                 name_of_current_valve: valve.name,
             });
-            let total_pressure_release = minutes * valve.flow_rate as i64
-                + dfs(
-                    network_of_pipes,
-                    minutes_to_move_from_a_valve_to_any_other_valve,
-                    actors,
-                    opened_valves,
-                );
+            let total_pressure_release =
+                minutes * valve.flow_rate as i64 + dfs(network_of_pipes, minutes_to_move_from_a_valve_to_any_other_valve, actors, opened_valves);
             actors.pop();
             opened_valves.remove(valve.name);
 
@@ -219,11 +204,7 @@ mod parser {
         let (s, tunnels_to) = separated_list1(tag(", "), parse_valve_name)(s)?;
         let (s, _) = line_ending(s)?;
 
-        let valve = Valve {
-            name,
-            flow_rate,
-            tunnels_to,
-        };
+        let valve = Valve { name, flow_rate, tunnels_to };
 
         Ok((s, valve))
     }

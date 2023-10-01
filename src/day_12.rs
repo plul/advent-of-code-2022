@@ -60,7 +60,9 @@ impl<'g> Graph<'g> for Heightmap {
 
         v.into_iter()
             .filter(|coord| {
-                let Some(node) = self.get_node(*coord) else { return false; };
+                let Some(node) = self.get_node(*coord) else {
+                    return false;
+                };
                 from_height + 1 >= node.height()
             })
             .map(|coord| Edge { to: coord })

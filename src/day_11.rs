@@ -14,7 +14,9 @@ pub fn part_1(input: &str) -> u64 {
         for monkey_idx in 0..monkeys.len() {
             loop {
                 let monkey = &mut monkeys[monkey_idx];
-                let Some(mut item) = monkey.items.pop_front() else { break; };
+                let Some(mut item) = monkey.items.pop_front() else {
+                    break;
+                };
                 monkey.inspected_items += 1;
 
                 let rhs = match monkey.expression.operand {
@@ -33,8 +35,7 @@ pub fn part_1(input: &str) -> u64 {
                 // Relief
                 item.worry_level.current_value /= 3;
 
-                let throw_to = if is_divisible_by(&item.worry_level.current_value, &monkey.test_divisible_by)
-                {
+                let throw_to = if is_divisible_by(&item.worry_level.current_value, &monkey.test_divisible_by) {
                     monkey.if_true_throw_to
                 } else {
                     monkey.if_false_throw_to
@@ -59,9 +60,7 @@ pub fn part_2(input: &str) -> u64 {
     for item in monkeys.iter_mut().flat_map(|m| m.items.iter_mut()) {
         for divider in dividers.iter().copied() {
             let remainder_if_divided = item.worry_level.current_value % divider;
-            item.worry_level
-                .remainder_if_divided_by
-                .insert(divider, remainder_if_divided);
+            item.worry_level.remainder_if_divided_by.insert(divider, remainder_if_divided);
         }
     }
 
@@ -69,7 +68,9 @@ pub fn part_2(input: &str) -> u64 {
         for monkey_idx in 0..monkeys.len() {
             loop {
                 let monkey = &mut monkeys[monkey_idx];
-                let Some(mut item) = monkey.items.pop_front() else { break; };
+                let Some(mut item) = monkey.items.pop_front() else {
+                    break;
+                };
                 monkey.inspected_items += 1;
 
                 for (divider, remainder) in item.worry_level.remainder_if_divided_by.iter_mut() {
@@ -106,17 +107,8 @@ pub fn part_2(input: &str) -> u64 {
                     *remainder = new_remainder;
                 }
 
-                let test: bool = *item
-                    .worry_level
-                    .remainder_if_divided_by
-                    .get(&monkey.test_divisible_by)
-                    .unwrap()
-                    == 0;
-                let throw_to = if test {
-                    monkey.if_true_throw_to
-                } else {
-                    monkey.if_false_throw_to
-                };
+                let test: bool = *item.worry_level.remainder_if_divided_by.get(&monkey.test_divisible_by).unwrap() == 0;
+                let throw_to = if test { monkey.if_true_throw_to } else { monkey.if_false_throw_to };
 
                 let other_monkey = &mut monkeys[throw_to as usize];
                 other_monkey.items.push_back(item);
@@ -129,12 +121,7 @@ pub fn part_2(input: &str) -> u64 {
 
 fn monkey_business(mut monkeys: Vec<Monkey>) -> u64 {
     monkeys.sort_by_key(|m| std::cmp::Reverse(m.inspected_items));
-    monkeys
-        .iter()
-        .take(2)
-        .map(|m| m.inspected_items)
-        .reduce(std::ops::Mul::mul)
-        .unwrap()
+    monkeys.iter().take(2).map(|m| m.inspected_items).reduce(std::ops::Mul::mul).unwrap()
 }
 
 fn is_divisible_by<'a, T>(value: &'a T, divider: &'a T) -> bool
@@ -198,9 +185,7 @@ mod parser {
     use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Monkey> {
-        all_consuming(separated_list0(line_ending, parse_monkey))(s)
-            .unwrap()
-            .1
+        all_consuming(separated_list0(line_ending, parse_monkey))(s).unwrap().1
     }
 
     fn parse_monkey(s: &str) -> IResult<&str, Monkey> {
@@ -210,10 +195,8 @@ mod parser {
         let (s, _) = tag("  Test: divisible by ")(s)?;
         let (s, test_divisible_by) = terminated(u64, line_ending)(s)?;
 
-        let (s, if_true_throw_to) =
-            terminated(preceded(tag("    If true: throw to monkey "), u64), line_ending)(s)?;
-        let (s, if_false_throw_to) =
-            terminated(preceded(tag("    If false: throw to monkey "), u64), line_ending)(s)?;
+        let (s, if_true_throw_to) = terminated(preceded(tag("    If true: throw to monkey "), u64), line_ending)(s)?;
+        let (s, if_false_throw_to) = terminated(preceded(tag("    If false: throw to monkey "), u64), line_ending)(s)?;
 
         let items = starting_items
             .into_iter()
@@ -274,10 +257,7 @@ mod parser {
 
         let (s, _) = line_ending(s)?;
 
-        let expression = ArithmeticExpression {
-            operation,
-            operand: rhs,
-        };
+        let expression = ArithmeticExpression { operation, operand: rhs };
 
         Ok((s, expression))
     }

@@ -14,10 +14,7 @@ pub fn part_1(input: &str) -> usize {
 
 pub fn part_2(input: &str) -> usize {
     let pairs = parser::parse(input);
-    let mut packets: Vec<Value> = pairs
-        .into_iter()
-        .flat_map(|p| [p.first_packet, p.second_packet].into_iter())
-        .collect();
+    let mut packets: Vec<Value> = pairs.into_iter().flat_map(|p| [p.first_packet, p.second_packet].into_iter()).collect();
 
     let divider_packet_1 = Value::List(vec![Value::List(vec![Value::Integer(2)])]);
     let divider_packet_2 = Value::List(vec![Value::List(vec![Value::Integer(6)])]);
@@ -27,16 +24,8 @@ pub fn part_2(input: &str) -> usize {
 
     packets.sort();
 
-    let (divider_packet_1_idx, _) = packets
-        .iter()
-        .enumerate()
-        .find(|(_, p)| **p == divider_packet_1)
-        .unwrap();
-    let (divider_packet_2_idx, _) = packets
-        .iter()
-        .enumerate()
-        .find(|(_, p)| **p == divider_packet_2)
-        .unwrap();
+    let (divider_packet_1_idx, _) = packets.iter().enumerate().find(|(_, p)| **p == divider_packet_1).unwrap();
+    let (divider_packet_2_idx, _) = packets.iter().enumerate().find(|(_, p)| **p == divider_packet_2).unwrap();
 
     (divider_packet_1_idx + 1) * (divider_packet_2_idx + 1)
 }
@@ -79,17 +68,12 @@ mod parser {
     use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Pair> {
-        all_consuming(separated_list0(line_ending, parse_pair))(s)
-            .unwrap()
-            .1
+        all_consuming(separated_list0(line_ending, parse_pair))(s).unwrap().1
     }
 
     fn parse_pair(s: &str) -> IResult<&str, Pair> {
         let (s, (first_packet, second_packet)) = pair(parse_packet_line, parse_packet_line)(s)?;
-        let p = Pair {
-            first_packet,
-            second_packet,
-        };
+        let p = Pair { first_packet, second_packet };
         Ok((s, p))
     }
 
@@ -98,10 +82,7 @@ mod parser {
     }
 
     fn parse_value(s: &str) -> IResult<&str, Value> {
-        let list = map(
-            delimited(char('['), separated_list0(char(','), parse_value), char(']')),
-            Value::List,
-        );
+        let list = map(delimited(char('['), separated_list0(char(','), parse_value), char(']')), Value::List);
         let integer = map(u64, Value::Integer);
         alt((list, integer))(s)
     }
@@ -169,9 +150,7 @@ fn part_2_example() {
 #[test]
 fn ord() {
     use crate::nom_complete::*;
-    let mut packets = all_consuming(many0(parser::parse_packet_line))(EXAMPLE_PART_2)
-        .unwrap()
-        .1;
+    let mut packets = all_consuming(many0(parser::parse_packet_line))(EXAMPLE_PART_2).unwrap().1;
     let expected = packets.clone();
     packets.sort();
     assert_eq!(packets, expected);

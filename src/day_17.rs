@@ -73,22 +73,16 @@ fn simulate(jets: Vec<Jet>, limit: usize) -> Cave {
                     if let Some(snapshot) = snapshots.iter().find(|s| {
                         s.jet_pattern_idx == jet_pattern_idx
                             && s.rock_pattern_idx == rock_pattern_idx
-                            && s.cave
+                            && s.cave.rows.iter().rev().take(max_fall_depth as usize + max_rock_height).eq(cave
                                 .rows
                                 .iter()
                                 .rev()
-                                .take(max_fall_depth as usize + max_rock_height)
-                                .eq(cave
-                                    .rows
-                                    .iter()
-                                    .rev()
-                                    .take(max_fall_depth as usize + max_rock_height))
+                                .take(max_fall_depth as usize + max_rock_height))
                     }) {
                         let rocks_per_cycle = fallen_rocks - snapshot.fallen_rocks;
                         let remaining_rocks_to_simulate = limit - fallen_rocks;
                         let n_cycles_to_fast_forward = remaining_rocks_to_simulate / rocks_per_cycle;
-                        let rows_added_per_cycle = (cave.past_rows + cave.rows.len())
-                            - (snapshot.cave.past_rows + snapshot.cave.rows.len());
+                        let rows_added_per_cycle = (cave.past_rows + cave.rows.len()) - (snapshot.cave.past_rows + snapshot.cave.rows.len());
                         cave.past_rows += n_cycles_to_fast_forward * rows_added_per_cycle;
                         fallen_rocks += n_cycles_to_fast_forward * rocks_per_cycle;
 
@@ -121,44 +115,19 @@ fn jet_pattern(jets: &[Jet]) -> impl Iterator<Item = (&Jet, usize)> {
 
 fn rock_pattern() -> impl Iterator<Item = (RockShape, usize)> {
     // Rock shaped like -
-    let rock_1 = RockShape(
-        [(0, 0), (0, 1), (0, 2), (0, 3)]
-            .into_iter()
-            .map(Vector2D::from)
-            .collect(),
-    );
+    let rock_1 = RockShape([(0, 0), (0, 1), (0, 2), (0, 3)].into_iter().map(Vector2D::from).collect());
 
     // Rock shaped like +
-    let rock_2 = RockShape(
-        [(0, 1), (1, 0), (1, 1), (1, 2), (2, 1)]
-            .into_iter()
-            .map(Vector2D::from)
-            .collect(),
-    );
+    let rock_2 = RockShape([(0, 1), (1, 0), (1, 1), (1, 2), (2, 1)].into_iter().map(Vector2D::from).collect());
 
     // Rock shaped like an angle
-    let rock_3 = RockShape(
-        [(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)]
-            .into_iter()
-            .map(Vector2D::from)
-            .collect(),
-    );
+    let rock_3 = RockShape([(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)].into_iter().map(Vector2D::from).collect());
 
     // Rock shaped like |
-    let rock_4 = RockShape(
-        [(0, 0), (1, 0), (2, 0), (3, 0)]
-            .into_iter()
-            .map(Vector2D::from)
-            .collect(),
-    );
+    let rock_4 = RockShape([(0, 0), (1, 0), (2, 0), (3, 0)].into_iter().map(Vector2D::from).collect());
 
     // Rock shaped like box
-    let rock_5 = RockShape(
-        [(0, 0), (0, 1), (1, 0), (1, 1)]
-            .into_iter()
-            .map(Vector2D::from)
-            .collect(),
-    );
+    let rock_5 = RockShape([(0, 0), (0, 1), (1, 0), (1, 1)].into_iter().map(Vector2D::from).collect());
 
     let rocks = vec![rock_1, rock_2, rock_3, rock_4, rock_5];
 
@@ -199,12 +168,7 @@ impl FallingRock {
                 }
 
                 // Check if enters other rock or floor
-                if cave
-                    .rows
-                    .get(coord.x as usize)
-                    .map(|row| row.0[coord.y as usize])
-                    .unwrap_or(false)
-                {
+                if cave.rows.get(coord.x as usize).map(|row| row.0[coord.y as usize]).unwrap_or(false) {
                     return true;
                 }
 
@@ -219,12 +183,7 @@ impl FallingRock {
     fn come_to_rest(self, cave: &mut Cave) {
         let mut full_line = None;
 
-        for part_of_rock in self
-            .rock_shape
-            .0
-            .into_iter()
-            .map(|part_coord| part_coord + self.coord)
-        {
+        for part_of_rock in self.rock_shape.0.into_iter().map(|part_coord| part_coord + self.coord) {
             let (row, col) = (part_of_rock.x, part_of_rock.y);
             while row >= cave.rows.len() as i64 {
                 cave.rows.push_back(Row([false; 7]));
@@ -284,9 +243,7 @@ mod parser {
     use crate::nom_complete::*;
 
     pub(super) fn parse(s: &str) -> Vec<Jet> {
-        all_consuming(terminated(many1(parse_jet), multispace0))(s)
-            .unwrap()
-            .1
+        all_consuming(terminated(many1(parse_jet), multispace0))(s).unwrap().1
     }
 
     fn parse_jet(s: &str) -> IResult<&str, Jet> {

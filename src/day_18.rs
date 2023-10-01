@@ -39,11 +39,7 @@ pub fn part_2(input: &str) -> usize {
     while let Some(cube) = stack.pop() {
         let neighbors: Vec<Cube> = cube
             .neighbors()
-            .filter(|c| {
-                (min_x..=max_x).contains(&c.0)
-                    && (min_y..=max_y).contains(&c.1)
-                    && (min_z..=max_z).contains(&c.2)
-            })
+            .filter(|c| (min_x..=max_x).contains(&c.0) && (min_y..=max_y).contains(&c.1) && (min_z..=max_z).contains(&c.2))
             .filter(|c| !outside_air.contains(c))
             .filter(|c| !droplet.lava_cubes.contains(c))
             .collect();
@@ -67,16 +63,9 @@ struct Droplet {
 struct Cube(i64, i64, i64);
 impl Cube {
     fn neighbors(self) -> impl Iterator<Item = Self> {
-        [
-            (-1, 0, 0),
-            (1, 0, 0),
-            (0, -1, 0),
-            (0, 1, 0),
-            (0, 0, -1),
-            (0, 0, 1),
-        ]
-        .into_iter()
-        .map(move |d| Cube(self.0 + d.0, self.1 + d.1, self.2 + d.2))
+        [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]
+            .into_iter()
+            .map(move |d| Cube(self.0 + d.0, self.1 + d.1, self.2 + d.2))
     }
 }
 

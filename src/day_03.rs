@@ -18,11 +18,7 @@ pub fn part_1(input: &str) -> usize {
 pub fn part_2(input: &str) -> usize {
     let groups: Vec<Group> = parser::parse(input);
 
-    groups
-        .iter()
-        .map(Group::common_item_between_rucksacks)
-        .map(priority)
-        .sum()
+    groups.iter().map(Group::common_item_between_rucksacks).map(priority).sum()
 }
 
 fn priority(c: char) -> usize {

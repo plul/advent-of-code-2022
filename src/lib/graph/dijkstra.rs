@@ -10,11 +10,7 @@ use std::hash::Hash;
 use std::ops::Add;
 
 /// Dijkstra's algo implemented with a min-heap.
-pub fn shortest_path<'g, G>(
-    graph: &'g G,
-    start_node: &'g G::Node,
-    end_node: &'g G::Node,
-) -> Option<<G::Edge as GraphEdgeCost>::Cost>
+pub fn shortest_path<'g, G>(graph: &'g G, start_node: &'g G::Node, end_node: &'g G::Node) -> Option<<G::Edge as GraphEdgeCost>::Cost>
 where
     G: Graph<'g>,
     G::Node: Eq + Hash,
@@ -30,10 +26,7 @@ where
         .into_iter()
         .map(|edge| {
             let to = edge.to();
-            Edge {
-                edge_cost: edge.cost(),
-                to,
-            }
+            Edge { edge_cost: edge.cost(), to }
         })
         .map(Reverse);
     edges.extend(i);

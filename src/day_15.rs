@@ -23,10 +23,7 @@ pub fn part_2(input: &str) -> i64 {
 
 fn find_distress_beacon(sensors: Vec<Sensor>, limit: i64) -> Vector2D<i64> {
     'rows: for row in 0..=limit {
-        let mut ranges: Vec<RangeInclusive<i64>> = sensors
-            .iter()
-            .filter_map(|s| s.x_range_within_radius_given_y(row))
-            .collect();
+        let mut ranges: Vec<RangeInclusive<i64>> = sensors.iter().filter_map(|s| s.x_range_within_radius_given_y(row)).collect();
         ranges.sort_by_key(|r| *r.start());
 
         let mut col = 0;
@@ -49,10 +46,7 @@ fn tuning_frequency(beacon: Vector2D<i64>) -> i64 {
 }
 
 fn count_positions_where_a_beacon_cannot_be_present(sensors: Vec<Sensor>, y: i64) -> i64 {
-    let mut ranges: Vec<RangeInclusive<i64>> = sensors
-        .iter()
-        .filter_map(|s| s.x_range_within_radius_given_y(y))
-        .collect();
+    let mut ranges: Vec<RangeInclusive<i64>> = sensors.iter().filter_map(|s| s.x_range_within_radius_given_y(y)).collect();
     ranges.sort_by_key(|r| *r.start());
 
     let mut i = i64::MIN;
@@ -93,8 +87,7 @@ impl Sensor {
         let distance_from_sensor_to_y_plane = (self.at.y - y).abs();
 
         if distance_from_sensor_to_y_plane <= manhattan_dist_from_sensor_to_beacon {
-            let x_range_to_either_side =
-                manhattan_dist_from_sensor_to_beacon - distance_from_sensor_to_y_plane;
+            let x_range_to_either_side = manhattan_dist_from_sensor_to_beacon - distance_from_sensor_to_y_plane;
             Some((self.at.x - x_range_to_either_side)..=(self.at.x + x_range_to_either_side))
         } else {
             None
