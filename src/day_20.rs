@@ -2,8 +2,6 @@
 //!
 //! https://adventofcode.com/2022/day/20
 
-use tap::Pipe;
-
 pub fn part_1(input: &str) -> i64 {
     let numbers = parser::parse(input);
     let mixed = mix_numbers(&numbers, 1);
@@ -27,17 +25,20 @@ fn grove_coordinates(mixed: &[i64]) -> [i64; 3] {
         .map(|(idx, _)| idx)
         .unwrap();
 
-    let x = (mixed_index_of_zero + 1000)
-        .rem_euclid(mixed.len())
-        .pipe(|i| mixed[i]);
+    let x = {
+        let i = (mixed_index_of_zero + 1000).rem_euclid(mixed.len());
+        mixed[i]
+    };
 
-    let y = (mixed_index_of_zero + 2000)
-        .rem_euclid(mixed.len())
-        .pipe(|i| mixed[i]);
+    let y = {
+        let i = (mixed_index_of_zero + 2000).rem_euclid(mixed.len());
+        mixed[i]
+    };
 
-    let z = (mixed_index_of_zero + 3000)
-        .rem_euclid(mixed.len())
-        .pipe(|i| mixed[i]);
+    let z = {
+        let i = (mixed_index_of_zero + 3000).rem_euclid(mixed.len());
+        mixed[i]
+    };
 
     [x, y, z]
 }

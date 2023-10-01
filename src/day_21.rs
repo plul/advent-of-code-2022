@@ -19,8 +19,7 @@ pub fn part_1(input: &str) -> i64 {
     let monkey_graph = MonkeyGraph { monkey_map };
     let root = monkey_graph.monkey_map.get("root").unwrap();
 
-    let topologically_sorted_monkeys =
-        graph::topological_sort::topological_sort(&monkey_graph, root).unwrap();
+    let topologically_sorted_monkeys = graph::topological_sort::topological_sort(&monkey_graph, root);
     debug_assert_eq!(topologically_sorted_monkeys.last().unwrap().name, "root");
 
     let mut monkey_yell = HashMap::<&str, i64>::new();
@@ -52,7 +51,12 @@ pub fn part_2(input: &str) -> i64 {
         .collect();
 
     let root = &monkeys["root"];
-    let Job::MathOperation { monkey_1, monkey_2, .. } = &root.job else { panic!(); };
+    let Job::MathOperation {
+        monkey_1, monkey_2, ..
+    } = &root.job
+    else {
+        panic!();
+    };
     let monkey_1 = &monkeys[monkey_1];
     let monkey_2 = &monkeys[monkey_2];
 
@@ -364,6 +368,7 @@ drzm: hmdt - zczc
 hmdt: 32
 ";
 
+#[cfg(test)]
 static ADDITIONAL_EXAMPLE_PART_2: &str = "\
 root: juli + josi
 juli: amee + alex

@@ -4,19 +4,10 @@ use std::borrow::Cow;
 use std::collections::HashSet;
 use std::hash::Hash;
 
-#[derive(Debug, thiserror::Error)]
-pub enum TopologicalSortError {
-    #[error("Directed graph detected")]
-    DirectedGraphDetected,
-}
-
 /// Implemented with a modified DFS.
 ///
 /// TODO: Implement some form of check that this is really a DAG - what happens if it is not?
-pub fn topological_sort<'g, G>(
-    graph: &'g G,
-    start_node: &'g G::Node,
-) -> Result<Vec<Cow<'g, G::Node>>, TopologicalSortError>
+pub fn topological_sort<'g, G>(graph: &'g G, start_node: &'g G::Node) -> Vec<Cow<'g, G::Node>>
 where
     G: Graph<'g>,
     G::Node: Eq + Hash,
@@ -40,5 +31,5 @@ where
         }
     }
 
-    Ok(topological_order)
+    topological_order
 }

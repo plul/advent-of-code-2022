@@ -1,21 +1,26 @@
-# Check, test, lint, then run
-default: test lint fmt-check run
+_list:
+    @just --list --unsorted
 
-# Edit this justfile
-edit:
-    $EDITOR {{ justfile() }}
-
-# List recipes
-list:
-    @just --list
-
-# Run tests
-test:
+# Check project
+check:
+    just --unstable --fmt --check
+    nix fmt -- --check .
+    taplo fmt --check `fd --extension=toml`
+    prettier --check `fd --extension=md`
+    cargo fmt -- --check 
+    cargo clippy --tests --examples -- -D warnings
+    taplo lint `fd --extension=toml`
+    RUSTDOCFLAGS='-Dwarnings' cargo doc --no-deps
     cargo nextest run
+    nix flake show
 
-# Clippy
-lint:
-    cargo clippy --tests -- -D rust-2018-idioms
+# Format code
+fmt:
+    just --unstable --fmt
+    nix fmt
+    taplo fmt `fd --extension=toml`
+    cargo fmt
+    prettier --write `fd --extension=md`
 
 # Run (debug) specified problem or all if unspecified
 debug *ARGS:
@@ -30,10 +35,6 @@ bench *ARGS:
     cargo build --release
     hyperfine --shell=none --warmup 5 './target/release/advent-of-code-2022 {{ ARGS }}'
 
-# Format code
-fmt:
-    cargo +nightly fmt
-    just --unstable --fmt
-
-fmt-check:
-    cargo +nightly fmt --check
+# List nightly features in use
+list-nightly-features:
+    rg '^#!\[feature(.*)\]'

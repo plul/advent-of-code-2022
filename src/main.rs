@@ -3,6 +3,7 @@
 #![feature(int_roundings)]
 
 use clap::Parser;
+use colored::Colorize;
 use std::path::Path;
 use std::time::Instant;
 
@@ -159,7 +160,14 @@ fn solve(day: usize, part: usize) {
     };
     let elapsed = now.elapsed();
 
-    println!("{:10}μs   Day {day} Part {part}: {solution}", elapsed.as_micros());
+    let micros = elapsed.as_micros();
+    let time = match micros {
+        x if x < 10_000 => format!("{}μs", micros).green(),
+        x if x < 10_000_000 => format!("{}ms", micros / 1000).yellow(),
+        _ => format!("{}s", micros / 1000 / 1000).red(),
+    };
+
+    println!("{time:>10}    Day {day} Part {part}: {solution}");
 }
 
 fn read_input(path: impl AsRef<Path>) -> String {
