@@ -57,7 +57,6 @@
             pkgs.hyperfine
             pkgs.just
             pkgs.nodePackages.prettier
-            pkgs.rust-analyzer
             pkgs.taplo
           ];
         };
